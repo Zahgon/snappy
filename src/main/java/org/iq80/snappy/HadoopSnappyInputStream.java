@@ -14,76 +14,46 @@
 package org.iq80.snappy;
 
 import org.apache.hadoop.io.compress.CompressionInputStream;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-
 import static org.iq80.snappy.SnappyConstants.SIZE_OF_LONG;
 
-class HadoopSnappyInputStream
-        extends CompressionInputStream
-{
+class HadoopSnappyInputStream extends CompressionInputStream {
+
     private final InputStream in;
 
     private int uncompressedBlockLength;
+
     private byte[] uncompressedChunk = new byte[0];
+
     private int uncompressedChunkOffset;
+
     private int uncompressedChunkLength;
 
     private byte[] compressed = new byte[0];
 
-    public HadoopSnappyInputStream(InputStream in)
-            throws IOException
-    {
+    public HadoopSnappyInputStream(InputStream in) throws IOException {
         super(in);
         this.in = in;
     }
 
     @Override
-    public int read()
-            throws IOException
-    {
-        if (uncompressedChunkOffset >= uncompressedChunkLength) {
-            readNextChunk(uncompressedChunk, 0, uncompressedChunk.length);
-            if (uncompressedChunkLength == 0) {
-                return -1;
-            }
-        }
-        return uncompressedChunk[uncompressedChunkOffset++] & 0xFF;
+    public int read() throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public int read(byte[] output, int offset, int length)
-            throws IOException
-    {
-        if (uncompressedChunkOffset >= uncompressedChunkLength) {
-            boolean directDecompress = readNextChunk(output, offset, length);
-            if (uncompressedChunkLength == 0) {
-                return -1;
-            }
-            if (directDecompress) {
-                uncompressedChunkOffset += uncompressedChunkLength;
-                return uncompressedChunkLength;
-            }
-        }
-        int size = Math.min(length, uncompressedChunkLength - uncompressedChunkOffset);
-        System.arraycopy(uncompressedChunk, uncompressedChunkOffset, output, offset, size);
-        uncompressedChunkOffset += size;
-        return size;
+    public int read(byte[] output, int offset, int length) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public void resetState()
-    {
-        uncompressedBlockLength = 0;
-        uncompressedChunkOffset = 0;
-        uncompressedChunkLength = 0;
+    public void resetState() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    private boolean readNextChunk(byte[] userBuffer, int userOffset, int userLength)
-            throws IOException
-    {
+    private boolean readNextChunk(byte[] userBuffer, int userOffset, int userLength) throws IOException {
         uncompressedBlockLength -= uncompressedChunkOffset;
         uncompressedChunkOffset = 0;
         uncompressedChunkLength = 0;
@@ -94,23 +64,19 @@ class HadoopSnappyInputStream
                 return false;
             }
         }
-
         int compressedChunkLength = readBigEndianInt();
         if (compressedChunkLength == -1) {
             return false;
         }
-
         if (compressed.length < compressedChunkLength) {
-             // over allocate buffer which makes decompression easier
+            // over allocate buffer which makes decompression easier
             compressed = new byte[compressedChunkLength + SIZE_OF_LONG];
         }
         readInput(compressedChunkLength, compressed);
-
         uncompressedChunkLength = Snappy.getUncompressedLength(compressed, 0);
         if (uncompressedChunkLength > uncompressedBlockLength) {
             throw new IOException("Chunk uncompressed size is greater than block size");
         }
-
         boolean directUncompress = true;
         if (uncompressedChunkLength > userLength) {
             if (uncompressedChunk.length < uncompressedChunkLength) {
@@ -122,7 +88,6 @@ class HadoopSnappyInputStream
             userOffset = 0;
             userLength = uncompressedChunk.length;
         }
-
         int bytes = Snappy.uncompress(compressed, 0, compressedChunkLength, userBuffer, userOffset, userLength);
         if (uncompressedChunkLength != bytes) {
             throw new IOException("Expected to read " + uncompressedChunkLength + " bytes, but data only contained " + bytes + " bytes");
@@ -130,9 +95,7 @@ class HadoopSnappyInputStream
         return directUncompress;
     }
 
-    private void readInput(int length, byte[] buffer)
-            throws IOException
-    {
+    private void readInput(int length, byte[] buffer) throws IOException {
         int offset = 0;
         while (offset < length) {
             int size = in.read(buffer, offset, length - offset);
@@ -143,9 +106,7 @@ class HadoopSnappyInputStream
         }
     }
 
-    private int readBigEndianInt()
-            throws IOException
-    {
+    private int readBigEndianInt() throws IOException {
         int b1 = in.read();
         if (b1 < 0) {
             return -1;
@@ -153,7 +114,6 @@ class HadoopSnappyInputStream
         int b2 = in.read();
         int b3 = in.read();
         int b4 = in.read();
-
         // If any of the other bits are negative, the stream it truncated
         if ((b2 | b3 | b4) < 0) {
             throw new IOException("Stream is truncated");

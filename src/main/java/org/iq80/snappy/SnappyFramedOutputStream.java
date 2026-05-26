@@ -23,9 +23,8 @@ import java.io.OutputStream;
 /**
  * Implements the <a href="http://snappy.googlecode.com/svn/trunk/framing_format.txt" >x-snappy-framed</a> as an {@link OutputStream}.
  */
-public final class SnappyFramedOutputStream
-        extends OutputStream
-{
+public final class SnappyFramedOutputStream extends OutputStream {
+
     /**
      * We place an additional restriction that the uncompressed data in
      * a chunk must be no longer than 65536 bytes. This allows consumers to
@@ -40,13 +39,19 @@ public final class SnappyFramedOutputStream
     private final Snappy.CompressionContext compressionContext = new Snappy.CompressionContext();
 
     private final int blockSize;
+
     private final byte[] buffer;
+
     private final byte[] outputBuffer;
+
     private final double minCompressionRatio;
+
     private final OutputStream out;
+
     private final boolean writeChecksums;
 
     private int position;
+
     private boolean closed;
 
     /**
@@ -54,9 +59,7 @@ public final class SnappyFramedOutputStream
      *
      * @param out the underlying output stream
      */
-    public SnappyFramedOutputStream(OutputStream out)
-            throws IOException
-    {
+    public SnappyFramedOutputStream(OutputStream out) throws IOException {
         this(out, true);
     }
 
@@ -65,9 +68,7 @@ public final class SnappyFramedOutputStream
      *
      * @param out the underlying output stream
      */
-    public SnappyFramedOutputStream(OutputStream out, int blockSize, double minCompressionRatio)
-            throws IOException
-    {
+    public SnappyFramedOutputStream(OutputStream out, int blockSize, double minCompressionRatio) throws IOException {
         this(out, true, blockSize, minCompressionRatio);
     }
 
@@ -77,21 +78,15 @@ public final class SnappyFramedOutputStream
      *
      * @param out the underlying output stream
      */
-    public static SnappyFramedOutputStream newChecksumFreeBenchmarkOutputStream(OutputStream out)
-            throws IOException
-    {
-        return new SnappyFramedOutputStream(out, false);
+    public static SnappyFramedOutputStream newChecksumFreeBenchmarkOutputStream(OutputStream out) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    private SnappyFramedOutputStream(OutputStream out, boolean writeChecksums)
-            throws IOException
-    {
+    private SnappyFramedOutputStream(OutputStream out, boolean writeChecksums) throws IOException {
         this(out, writeChecksums, DEFAULT_BLOCK_SIZE, DEFAULT_MIN_COMPRESSION_RATIO);
     }
 
-    private SnappyFramedOutputStream(OutputStream out, boolean writeChecksums, int blockSize, double minCompressionRatio)
-            throws IOException
-    {
+    private SnappyFramedOutputStream(OutputStream out, boolean writeChecksums, int blockSize, double minCompressionRatio) throws IOException {
         this.out = SnappyInternalUtils.checkNotNull(out, "out is null");
         this.writeChecksums = writeChecksums;
         SnappyInternalUtils.checkArgument(minCompressionRatio > 0 && minCompressionRatio <= 1.0, "minCompressionRatio %1s must be between (0,1.0].", minCompressionRatio);
@@ -99,90 +94,31 @@ public final class SnappyFramedOutputStream
         this.blockSize = blockSize;
         this.buffer = new byte[blockSize];
         this.outputBuffer = new byte[Snappy.maxCompressedLength(blockSize)];
-
         out.write(SnappyFramed.HEADER_BYTES);
         SnappyInternalUtils.checkArgument(blockSize > 0 && blockSize <= MAX_BLOCK_SIZE, "blockSize must be in (0, 65536]", blockSize);
     }
 
     @Override
-    public void write(int b)
-            throws IOException
-    {
-        if (closed) {
-            throw new IOException("Stream is closed");
-        }
-        if (position >= blockSize) {
-            flushBuffer();
-        }
-        buffer[position++] = (byte) b;
+    public void write(int b) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public void write(byte[] input, int offset, int length)
-            throws IOException
-    {
-        SnappyInternalUtils.checkNotNull(input, "input is null");
-        SnappyInternalUtils.checkPositionIndexes(offset, offset + length, input.length);
-        if (closed) {
-            throw new IOException("Stream is closed");
-        }
-
-        int free = blockSize - position;
-
-        // easy case: enough free space in buffer for entire input
-        if (free >= length) {
-            copyToBuffer(input, offset, length);
-            return;
-        }
-
-        // fill partial buffer as much as possible and flush
-        if (position > 0) {
-            copyToBuffer(input, offset, free);
-            flushBuffer();
-            offset += free;
-            length -= free;
-        }
-
-        // write remaining full blocks directly from input array
-        while (length >= blockSize) {
-            writeCompressed(input, offset, blockSize);
-            offset += blockSize;
-            length -= blockSize;
-        }
-
-        // copy remaining partial block into now-empty buffer
-        copyToBuffer(input, offset, length);
+    public void write(byte[] input, int offset, int length) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public void flush()
-            throws IOException
-    {
-        if (closed) {
-            throw new IOException("Stream is closed");
-        }
-        flushBuffer();
-        out.flush();
+    public void flush() throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public void close()
-            throws IOException
-    {
-        if (closed) {
-            return;
-        }
-        try {
-            flush();
-            out.close();
-        }
-        finally {
-            closed = true;
-        }
+    public void close() throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    private void copyToBuffer(byte[] input, int offset, int length)
-    {
+    private void copyToBuffer(byte[] input, int offset, int length) {
         System.arraycopy(input, offset, buffer, position, length);
         position += length;
     }
@@ -191,9 +127,7 @@ public final class SnappyFramedOutputStream
      * Compresses and writes out any buffered data. This does nothing if there
      * is no currently buffered data.
      */
-    private void flushBuffer()
-            throws IOException
-    {
+    private void flushBuffer() throws IOException {
         if (position > 0) {
             writeCompressed(buffer, 0, position);
             position = 0;
@@ -210,19 +144,14 @@ public final class SnappyFramedOutputStream
      * @param offset The offset into <i>input</i> where the data starts.
      * @param length The amount of data in <i>input</i>.
      */
-    private void writeCompressed(byte[] input, int offset, int length)
-            throws IOException
-    {
+    private void writeCompressed(byte[] input, int offset, int length) throws IOException {
         // crc is based on the user supplied input data
         int crc32c = writeChecksums ? Crc32C.maskedCrc32c(input, offset, length) : 0;
-
         int compressed = Snappy.compress(compressionContext, input, offset, length, outputBuffer, 0, outputBuffer.length);
-
         // only use the compressed data if compression ratio is <= the minCompressionRatio
         if (((double) compressed / (double) length) <= minCompressionRatio) {
             writeBlock(out, outputBuffer, 0, compressed, true, crc32c);
-        }
-        else {
+        } else {
             // otherwise use the uncompressed data.
             writeBlock(out, input, offset, length, false, crc32c);
         }
@@ -240,25 +169,19 @@ public final class SnappyFramedOutputStream
      * reached.
      * @param crc32c The calculated checksum.
      */
-    private static void writeBlock(OutputStream out, byte[] data, int offset, int length, boolean compressed, int crc32c)
-            throws IOException
-    {
+    private static void writeBlock(OutputStream out, byte[] data, int offset, int length, boolean compressed, int crc32c) throws IOException {
         out.write(compressed ? SnappyFramed.COMPRESSED_DATA_FLAG : SnappyFramed.UNCOMPRESSED_DATA_FLAG);
-
         // the length written out to the header is both the checksum and the frame
         int headerLength = length + 4;
-
         // write length
         out.write(headerLength);
         out.write(headerLength >>> 8);
         out.write(headerLength >>> 16);
-
         // write crc32c of user input data
         out.write(crc32c);
         out.write(crc32c >>> 8);
         out.write(crc32c >>> 16);
         out.write(crc32c >>> 24);
-
         // write data
         out.write(data, offset, length);
     }

@@ -25,105 +25,79 @@ import org.apache.hadoop.io.compress.CompressionOutputStream;
 import org.apache.hadoop.io.compress.Compressor;
 import org.apache.hadoop.io.compress.Decompressor;
 import org.apache.hadoop.io.compress.DoNotPool;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import static org.apache.hadoop.fs.CommonConfigurationKeys.IO_COMPRESSION_CODEC_SNAPPY_BUFFERSIZE_DEFAULT;
 import static org.apache.hadoop.fs.CommonConfigurationKeys.IO_COMPRESSION_CODEC_SNAPPY_BUFFERSIZE_KEY;
 
-public class HadoopSnappyCodec
-        implements Configurable, CompressionCodec
-{
+public class HadoopSnappyCodec implements Configurable, CompressionCodec {
+
     private Configuration conf;
 
     @Override
-    public Configuration getConf()
-    {
-        return conf;
+    public Configuration getConf() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public void setConf(Configuration conf)
-    {
-        this.conf = conf;
+    public void setConf(Configuration conf) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public CompressionOutputStream createOutputStream(OutputStream outputStream)
-            throws IOException
-    {
-        return new HadoopSnappyOutputStream(outputStream, getBufferSize());
+    public CompressionOutputStream createOutputStream(OutputStream outputStream) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public CompressionOutputStream createOutputStream(OutputStream outputStream, Compressor compressor)
-            throws IOException
-    {
-        if (!(compressor instanceof HadoopSnappyCompressor)) {
-            throw new IllegalArgumentException("Compressor is not the Snappy decompressor");
-        }
-        return new HadoopSnappyOutputStream(outputStream, getBufferSize());
+    public CompressionOutputStream createOutputStream(OutputStream outputStream, Compressor compressor) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public Class<? extends Compressor> getCompressorType()
-    {
-        return HadoopSnappyCompressor.class;
+    public Class<? extends Compressor> getCompressorType() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public Compressor createCompressor()
-    {
-        return new HadoopSnappyCompressor();
+    public Compressor createCompressor() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public CompressionInputStream createInputStream(InputStream inputStream)
-            throws IOException
-    {
-        return new HadoopSnappyInputStream(inputStream);
+    public CompressionInputStream createInputStream(InputStream inputStream) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public CompressionInputStream createInputStream(InputStream in, Decompressor decompressor)
-            throws IOException
-    {
-        if (!(decompressor instanceof HadoopSnappyDecompressor)) {
-            throw new IllegalArgumentException("Decompressor is not the Snappy decompressor");
-        }
-        return new HadoopSnappyInputStream(in);
+    public CompressionInputStream createInputStream(InputStream in, Decompressor decompressor) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public Class<? extends Decompressor> getDecompressorType()
-    {
-        return HadoopSnappyDecompressor.class;
+    public Class<? extends Decompressor> getDecompressorType() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public Decompressor createDecompressor()
-    {
-        return new HadoopSnappyDecompressor();
+    public Decompressor createDecompressor() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public String getDefaultExtension()
-    {
-        return ".snappy";
+    public String getDefaultExtension() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    private int getBufferSize()
-    {
+    private int getBufferSize() {
         // Favor using the configured buffer size.  This is not as critical for Snappy
         // since Snappy always writes the compressed chunk size, so we always know the
         // correct buffer size to create.
         int maxUncompressedLength;
         if (conf != null) {
             maxUncompressedLength = conf.getInt(IO_COMPRESSION_CODEC_SNAPPY_BUFFERSIZE_KEY, IO_COMPRESSION_CODEC_SNAPPY_BUFFERSIZE_DEFAULT);
-        }
-        else {
+        } else {
             maxUncompressedLength = IO_COMPRESSION_CODEC_SNAPPY_BUFFERSIZE_DEFAULT;
         }
         return maxUncompressedLength;
@@ -134,65 +108,62 @@ public class HadoopSnappyCodec
      * with a compressor can function.  This interface can be implemented if needed.
      */
     @DoNotPool
-    private static class HadoopSnappyCompressor
-            implements Compressor
-    {
+    private static class HadoopSnappyCompressor implements Compressor {
+
         @Override
-        public void setInput(byte[] b, int off, int len)
-        {
-            throw new UnsupportedOperationException("Snappy block compressor is not supported");
+        public void setInput(byte[] b, int off, int len) {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public boolean needsInput()
-        {
-            throw new UnsupportedOperationException("Snappy block compressor is not supported");
+        public boolean needsInput() {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public void setDictionary(byte[] b, int off, int len)
-        {
-            throw new UnsupportedOperationException("Snappy block compressor is not supported");
+        public void setDictionary(byte[] b, int off, int len) {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public long getBytesRead()
-        {
-            throw new UnsupportedOperationException("Snappy block compressor is not supported");
+        public long getBytesRead() {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public long getBytesWritten()
-        {
-            throw new UnsupportedOperationException("Snappy block compressor is not supported");
+        public long getBytesWritten() {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public void finish()
-        {
-            throw new UnsupportedOperationException("Snappy block compressor is not supported");
+        public void finish() {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public boolean finished()
-        {
-            throw new UnsupportedOperationException("Snappy block compressor is not supported");
+        public boolean finished() {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public int compress(byte[] b, int off, int len)
-        {
-            throw new UnsupportedOperationException("Snappy block compressor is not supported");
+        public int compress(byte[] b, int off, int len) {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public void reset() {}
+        public void reset() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
 
         @Override
-        public void end() {}
+        public void end() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
 
         @Override
-        public void reinit(Configuration conf) {}
+        public void reinit(Configuration conf) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
     /**
@@ -200,55 +171,51 @@ public class HadoopSnappyCodec
      * with a decompressor can function.  This interface can be implemented if needed.
      */
     @DoNotPool
-    private static class HadoopSnappyDecompressor
-            implements Decompressor
-    {
+    private static class HadoopSnappyDecompressor implements Decompressor {
+
         @Override
-        public void setInput(byte[] b, int off, int len)
-        {
-            throw new UnsupportedOperationException("Snappy block decompressor is not supported");
+        public void setInput(byte[] b, int off, int len) {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public boolean needsInput()
-        {
-            throw new UnsupportedOperationException("Snappy block decompressor is not supported");
+        public boolean needsInput() {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public void setDictionary(byte[] b, int off, int len)
-        {
-            throw new UnsupportedOperationException("Snappy block decompressor is not supported");
+        public void setDictionary(byte[] b, int off, int len) {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public boolean needsDictionary()
-        {
-            throw new UnsupportedOperationException("Snappy block decompressor is not supported");
+        public boolean needsDictionary() {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public boolean finished()
-        {
-            throw new UnsupportedOperationException("Snappy block decompressor is not supported");
+        public boolean finished() {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public int decompress(byte[] b, int off, int len)
-        {
-            throw new UnsupportedOperationException("Snappy block decompressor is not supported");
+        public int decompress(byte[] b, int off, int len) {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public int getRemaining()
-        {
-            throw new UnsupportedOperationException("Snappy block decompressor is not supported");
+        public int getRemaining() {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
 
         @Override
-        public void reset() {}
+        public void reset() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
 
         @Override
-        public void end() {}
+        public void end() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 }

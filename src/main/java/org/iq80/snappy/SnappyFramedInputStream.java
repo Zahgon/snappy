@@ -17,49 +17,54 @@
  */
 package org.iq80.snappy;
 
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-
 import static org.iq80.snappy.SnappyFramedOutputStream.MAX_BLOCK_SIZE;
 import static java.lang.Math.min;
 
 /**
  * Implements the <a href="http://snappy.googlecode.com/svn/trunk/framing_format.txt" >x-snappy-framed</a> as an {@link InputStream}.
  */
-public final class SnappyFramedInputStream
-        extends InputStream
-{
+public final class SnappyFramedInputStream extends InputStream {
+
     private final InputStream in;
+
     private final byte[] frameHeader;
+
     private final boolean verifyChecksums;
 
     /**
      * A single frame read from the underlying {@link InputStream}.
      */
     private byte[] input = new byte[0];
+
     /**
      * The decompressed data from {@link #input}.
      */
     private byte[] uncompressed = new byte[0];
+
     /**
      * Indicates if this instance has been closed.
      */
     private boolean closed;
+
     /**
      * Indicates if we have reached the EOF on {@link #in}.
      */
     private boolean eof;
+
     /**
      * The position in {@link #input} to read to.
      */
     private int valid;
+
     /**
      * The next position to read from {@link #buffer}.
      */
     private int position;
+
     /**
      * Buffer is a reference to the real buffer of uncompressed data for the
      * current block: uncompressed if the block is compressed, or input if it is
@@ -67,23 +72,17 @@ public final class SnappyFramedInputStream
      */
     private byte[] buffer;
 
-    public SnappyFramedInputStream(InputStream in)
-            throws IOException
-    {
+    public SnappyFramedInputStream(InputStream in) throws IOException {
         this(in, true);
     }
 
-    public SnappyFramedInputStream(InputStream in, boolean verifyChecksums)
-            throws IOException
-    {
+    public SnappyFramedInputStream(InputStream in, boolean verifyChecksums) throws IOException {
         this.in = in;
         this.verifyChecksums = verifyChecksums;
         allocateBuffersBasedOnSize(MAX_BLOCK_SIZE + 5);
         this.frameHeader = new byte[4];
-
         // stream must begin with stream header
         byte[] actualHeader = new byte[SnappyFramed.HEADER_BYTES.length];
-
         int read = SnappyInternalUtils.readBytes(in, actualHeader, 0, actualHeader.length);
         if (read < SnappyFramed.HEADER_BYTES.length) {
             throw new EOFException("encountered EOF while reading stream header");
@@ -94,111 +93,59 @@ public final class SnappyFramedInputStream
     }
 
     @Override
-    public int read()
-            throws IOException
-    {
-        if (closed) {
-            return -1;
-        }
-        if (!ensureBuffer()) {
-            return -1;
-        }
-        return buffer[position++] & 0xFF;
+    public int read() throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public int read(byte[] output, int offset, int length)
-            throws IOException
-    {
-        SnappyInternalUtils.checkNotNull(output, "output is null");
-        SnappyInternalUtils.checkPositionIndexes(offset, offset + length, output.length);
-        if (closed) {
-            throw new IOException("Stream is closed");
-        }
-
-        if (length == 0) {
-            return 0;
-        }
-        if (!ensureBuffer()) {
-            return -1;
-        }
-
-        int size = min(length, available());
-        System.arraycopy(buffer, position, output, offset, size);
-        position += size;
-        return size;
+    public int read(byte[] output, int offset, int length) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public int available()
-            throws IOException
-    {
-        if (closed) {
-            return 0;
-        }
-        return valid - position;
+    public int available() throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     @Override
-    public void close()
-            throws IOException
-    {
-        try {
-            in.close();
-        }
-        finally {
-            if (!closed) {
-                closed = true;
-            }
-        }
+    public void close() throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    private boolean ensureBuffer()
-            throws IOException
-    {
+    private boolean ensureBuffer() throws IOException {
         if (available() > 0) {
             return true;
         }
         if (eof) {
             return false;
         }
-
         if (!readBlockHeader()) {
             eof = true;
             return false;
         }
-
         // get action based on header
         FrameMetaData frameMetaData = getFrameMetaData(frameHeader);
-
         if (FrameAction.SKIP == frameMetaData.frameAction) {
             SnappyInternalUtils.skip(in, frameMetaData.length);
             return ensureBuffer();
         }
-
         if (frameMetaData.length > input.length) {
             allocateBuffersBasedOnSize(frameMetaData.length);
         }
-
         int actualRead = SnappyInternalUtils.readBytes(in, input, 0, frameMetaData.length);
         if (actualRead != frameMetaData.length) {
             throw new EOFException("unexpected EOF when reading frame");
         }
-
         FrameData frameData = getFrameData(input);
-
         if (FrameAction.UNCOMPRESS == frameMetaData.frameAction) {
             int uncompressedLength = Snappy.getUncompressedLength(input, frameData.offset);
-
             if (uncompressedLength > uncompressed.length) {
                 uncompressed = new byte[uncompressedLength];
             }
-
             this.valid = Snappy.uncompress(input, frameData.offset, actualRead - frameData.offset, uncompressed, 0);
             this.buffer = uncompressed;
             this.position = 0;
-        }
-        else {
+        } else {
             // we need to start reading at the offset
             this.position = frameData.offset;
             this.buffer = input;
@@ -206,19 +153,16 @@ public final class SnappyFramedInputStream
             // indicating where we start
             this.valid = actualRead;
         }
-
         if (verifyChecksums) {
             int actualCrc32c = Crc32C.maskedCrc32c(buffer, position, valid - position);
             if (frameData.checkSum != actualCrc32c) {
                 throw new IOException("Corrupt input: invalid checksum");
             }
         }
-
         return true;
     }
 
-    private void allocateBuffersBasedOnSize(int size)
-    {
+    private void allocateBuffersBasedOnSize(int size) {
         if (input.length < size) {
             input = new byte[size];
         }
@@ -231,17 +175,14 @@ public final class SnappyFramedInputStream
      * Use the content of the frameHeader to describe what type of frame we have
      * and the action to take.
      */
-    private static FrameMetaData getFrameMetaData(byte[] frameHeader)
-            throws IOException
-    {
+    private static FrameMetaData getFrameMetaData(byte[] frameHeader) throws IOException {
         int length = (frameHeader[1] & 0xFF);
         length |= (frameHeader[2] & 0xFF) << 8;
         length |= (frameHeader[3] & 0xFF) << 16;
-
         int minLength;
         FrameAction frameAction;
         int flag = frameHeader[0] & 0xFF;
-        switch (flag) {
+        switch(flag) {
             case SnappyFramed.COMPRESSED_DATA_FLAG:
                 frameAction = FrameAction.UNCOMPRESS;
                 minLength = 5;
@@ -262,16 +203,13 @@ public final class SnappyFramedInputStream
                 if (flag <= 0x7f) {
                     throw new IOException("unsupported unskippable chunk: " + Integer.toHexString(flag));
                 }
-
                 // all that is left is Reserved skippable chunks (chunk types 0x80-0xfe)
                 frameAction = FrameAction.SKIP;
                 minLength = 0;
         }
-
         if (length < minLength) {
             throw new IOException("invalid length: " + length + " for chunk flag: " + Integer.toHexString(flag));
         }
-
         return new FrameMetaData(frameAction, length);
     }
 
@@ -281,61 +219,51 @@ public final class SnappyFramedInputStream
      * @param content The content of the frame. Content begins at index {@code 0}.
      * @return Metadata about the content of the frame.
      */
-    private static FrameData getFrameData(byte[] content)
-    {
+    private static FrameData getFrameData(byte[] content) {
         // crc is contained in the frame content
-        int crc32c = (content[3] & 0xFF) << 24 |
-                (content[2] & 0xFF) << 16 |
-                (content[1] & 0xFF) << 8 |
-                (content[0] & 0xFF);
-
+        int crc32c = (content[3] & 0xFF) << 24 | (content[2] & 0xFF) << 16 | (content[1] & 0xFF) << 8 | (content[0] & 0xFF);
         return new FrameData(crc32c, 4);
     }
 
-    private boolean readBlockHeader()
-            throws IOException
-    {
+    private boolean readBlockHeader() throws IOException {
         int read = SnappyInternalUtils.readBytes(in, frameHeader, 0, frameHeader.length);
-
         if (read == -1) {
             return false;
         }
-
         if (read < frameHeader.length) {
             throw new EOFException("encountered EOF while reading block header");
         }
-
         return true;
     }
 
-    private enum FrameAction
-    {
+    private enum FrameAction {
+
         RAW, SKIP, UNCOMPRESS
     }
 
-    private static final class FrameMetaData
-    {
+    private static final class FrameMetaData {
+
         final int length;
+
         final FrameAction frameAction;
 
         /**
          * @param frameAction
          * @param length
          */
-        public FrameMetaData(FrameAction frameAction, int length)
-        {
+        public FrameMetaData(FrameAction frameAction, int length) {
             this.frameAction = frameAction;
             this.length = length;
         }
     }
 
-    private static final class FrameData
-    {
+    private static final class FrameData {
+
         final int checkSum;
+
         final int offset;
 
-        public FrameData(int checkSum, int offset)
-        {
+        public FrameData(int checkSum, int offset) {
             this.checkSum = checkSum;
             this.offset = offset;
         }

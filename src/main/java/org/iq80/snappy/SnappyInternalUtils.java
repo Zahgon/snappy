@@ -20,38 +20,26 @@ package org.iq80.snappy;
 import java.io.IOException;
 import java.io.InputStream;
 
-final class SnappyInternalUtils
-{
-    private SnappyInternalUtils() {}
+final class SnappyInternalUtils {
+
+    private SnappyInternalUtils() {
+    }
 
     //
     // Copied from Guava Preconditions
-    static <T> T checkNotNull(T reference, String errorMessageTemplate, Object... errorMessageArgs)
-    {
-        if (reference == null) {
-            // If either of these parameters is null, the right thing happens anyway
-            throw new NullPointerException(String.format(errorMessageTemplate, errorMessageArgs));
-        }
-        return reference;
+    static <T> T checkNotNull(T reference, String errorMessageTemplate, Object... errorMessageArgs) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    static void checkArgument(boolean expression, String errorMessageTemplate, Object... errorMessageArgs)
-    {
-        if (!expression) {
-            throw new IllegalArgumentException(String.format(errorMessageTemplate, errorMessageArgs));
-        }
+    static void checkArgument(boolean expression, String errorMessageTemplate, Object... errorMessageArgs) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    static void checkPositionIndexes(int start, int end, int size)
-    {
-        // Carefully optimized for execution by hotspot (explanatory comment above)
-        if (start < 0 || end < start || end > size) {
-            throw new IndexOutOfBoundsException(badPositionIndexes(start, end, size));
-        }
+    static void checkPositionIndexes(int start, int end, int size) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    private static String badPositionIndexes(int start, int end, int size)
-    {
+    private static String badPositionIndexes(int start, int end, int size) {
         if (start < 0 || start > size) {
             return badPositionIndex(start, size, "start index");
         }
@@ -62,15 +50,13 @@ final class SnappyInternalUtils
         return String.format("end index (%s) must not be less than start index (%s)", end, start);
     }
 
-    private static String badPositionIndex(int index, int size, String desc)
-    {
+    private static String badPositionIndex(int index, int size, String desc) {
         if (index < 0) {
             return String.format("%s (%s) must not be negative", desc, index);
-        }
-        else if (size < 0) {
+        } else if (size < 0) {
             throw new IllegalArgumentException("negative size: " + size);
-        }
-        else { // index > size
+        } else {
+            // index > size
             return String.format("%s (%s) must not be greater than size (%s)", desc, index, size);
         }
     }
@@ -87,59 +73,11 @@ final class SnappyInternalUtils
      * @return Total number of bytes actually read.
      * @throws IndexOutOfBoundsException if <i>offset</i> or <i>length</i> are invalid.
      */
-    static int readBytes(InputStream source, byte[] dest, int offset, int length)
-            throws IOException
-    {
-        checkNotNull(source, "source is null");
-        checkNotNull(dest, "dest is null");
-
-        // how many bytes were read.
-        int lastRead = source.read(dest, offset, length);
-
-        int totalRead = lastRead;
-
-        // if we did not read as many bytes as we had hoped, try reading again.
-        if (lastRead < length) {
-            // as long the buffer is not full (remaining() == 0) and we have not reached EOF (lastRead == -1) keep reading.
-            while (totalRead < length && lastRead != -1) {
-                lastRead = source.read(dest, offset + totalRead, length - totalRead);
-
-                // if we got EOF, do not add to total read.
-                if (lastRead != -1) {
-                    totalRead += lastRead;
-                }
-            }
-        }
-
-        return totalRead;
+    static int readBytes(InputStream source, byte[] dest, int offset, int length) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    static int skip(InputStream source, int skip)
-            throws IOException
-    {
-        // optimization also avoids potential for error with some implementation of
-        // InputStream.skip() which throw exceptions with negative numbers (ie. ZipInputStream).
-        if (skip <= 0) {
-            return 0;
-        }
-
-        int toSkip = skip - (int) source.skip(skip);
-
-        boolean more = true;
-        while (toSkip > 0 && more) {
-            // check to see if we reached EOF
-            int read = source.read();
-            if (read == -1) {
-                more = false;
-            }
-            else {
-                --toSkip;
-                toSkip -= source.skip(toSkip);
-            }
-        }
-
-        int skipped = skip - toSkip;
-
-        return skipped;
+    static int skip(InputStream source, int skip) throws IOException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 }

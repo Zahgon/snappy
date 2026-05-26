@@ -20,3 +20,8 @@ test-output/
 .settings
 eclipse-classes
 snappy-cc
+
+.aider*
+logs/
+.commit0_scripts/
+.github/workflows/

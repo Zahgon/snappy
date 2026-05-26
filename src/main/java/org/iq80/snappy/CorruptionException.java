@@ -13,24 +13,20 @@
  */
 package org.iq80.snappy;
 
-public class CorruptionException
-        extends RuntimeException
-{
+public class CorruptionException extends RuntimeException {
+
     private final long offset;
 
-    public CorruptionException(long offset)
-    {
+    public CorruptionException(long offset) {
         this(offset, "Malformed input");
     }
 
-    public CorruptionException(long offset, String reason)
-    {
+    public CorruptionException(long offset, String reason) {
         super(reason + ": offset=" + offset);
         this.offset = offset;
     }
 
-    public long getOffset()
-    {
-        return offset;
+    public long getOffset() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 }

@@ -18,111 +18,57 @@
 package org.iq80.snappy;
 
 import java.util.Arrays;
-
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
 
-public final class Snappy
-{
-    private Snappy() {}
+public final class Snappy {
 
-    public static int getUncompressedLength(byte[] compressed, int compressedOffset)
-            throws CorruptionException
-    {
-        long compressedAddress = ARRAY_BYTE_BASE_OFFSET + compressedOffset;
-        long compressedLimit = ARRAY_BYTE_BASE_OFFSET + compressed.length;
-
-        return SnappyRawDecompressor.getUncompressedLength(compressed, compressedAddress, compressedLimit);
+    private Snappy() {
     }
 
-    public static byte[] uncompress(byte[] compressed, int compressedOffset, int compressedSize)
-            throws CorruptionException
-    {
-        byte[] output = new byte[getUncompressedLength(compressed, compressedOffset)];
-        int uncompressedSize = uncompress(compressed, compressedOffset, compressedSize, output, 0);
-        if (uncompressedSize != output.length) {
-            throw new CorruptionException(0, format("Recorded length is %s bytes but actual length after decompression is %s bytes ",
-                    output.length,
-                    uncompressedSize));
-        }
-        return output;
+    public static int getUncompressedLength(byte[] compressed, int compressedOffset) throws CorruptionException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public static int uncompress(byte[] compressed, int compressedOffset, int compressedSize, byte[] uncompressed, int uncompressedOffset)
-            throws CorruptionException
-    {
-        return uncompress(compressed, compressedOffset, compressedSize, uncompressed, uncompressedOffset, uncompressed.length - uncompressedOffset);
+    public static byte[] uncompress(byte[] compressed, int compressedOffset, int compressedSize) throws CorruptionException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public static int uncompress(byte[] compressed, int compressedOffset, int compressedSize, byte[] uncompressed, int uncompressedOffset, int uncompressedLength)
-    {
-        verifyRange(compressed, compressedOffset, compressedSize);
-        verifyRange(uncompressed, uncompressedOffset, uncompressedLength);
-
-        long inputAddress = ARRAY_BYTE_BASE_OFFSET + compressedOffset;
-        long inputLimit = inputAddress + compressedSize;
-        long outputAddress = ARRAY_BYTE_BASE_OFFSET + uncompressedOffset;
-        long outputLimit = outputAddress + uncompressed.length - uncompressedOffset;
-
-        return SnappyRawDecompressor.decompress(compressed, inputAddress, inputLimit, uncompressed, outputAddress, outputLimit);
+    public static int uncompress(byte[] compressed, int compressedOffset, int compressedSize, byte[] uncompressed, int uncompressedOffset) throws CorruptionException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public static int maxCompressedLength(int sourceLength)
-    {
-        return SnappyRawCompressor.maxCompressedLength(sourceLength);
+    public static int uncompress(byte[] compressed, int compressedOffset, int compressedSize, byte[] uncompressed, int uncompressedOffset, int uncompressedLength) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public static int compress(
-            byte[] uncompressed,
-            int uncompressedOffset,
-            int uncompressedLength,
-            byte[] compressed,
-            int compressedOffset)
-    {
-        return compress(new CompressionContext(), uncompressed, uncompressedOffset, uncompressedLength, compressed, compressedOffset, compressed.length - compressedOffset);
+    public static int maxCompressedLength(int sourceLength) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public static int compress(
-            CompressionContext context,
-            byte[] uncompressed,
-            int uncompressedOffset,
-            int uncompressedLength,
-            byte[] compressed,
-            int compressedOffset,
-            int maxCompressedLength)
-    {
-        verifyRange(uncompressed, uncompressedOffset, uncompressedLength);
-        verifyRange(compressed, compressedOffset, maxCompressedLength);
-
-        long inputAddress = ARRAY_BYTE_BASE_OFFSET + uncompressedOffset;
-        long inputLimit = inputAddress + uncompressedLength;
-        long outputAddress = ARRAY_BYTE_BASE_OFFSET + compressedOffset;
-        long outputLimit = outputAddress + maxCompressedLength;
-
-        return SnappyRawCompressor.compress(uncompressed, inputAddress, inputLimit, compressed, outputAddress, outputLimit, context.getTable());
+    public static int compress(byte[] uncompressed, int uncompressedOffset, int uncompressedLength, byte[] compressed, int compressedOffset) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public static byte[] compress(byte[] data)
-    {
-        byte[] compressedOut = new byte[maxCompressedLength(data.length)];
-        int compressedSize = compress(data, 0, data.length, compressedOut, 0);
-        byte[] trimmedBuffer = Arrays.copyOf(compressedOut, compressedSize);
-        return trimmedBuffer;
+    public static int compress(CompressionContext context, byte[] uncompressed, int uncompressedOffset, int uncompressedLength, byte[] compressed, int compressedOffset, int maxCompressedLength) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public static final class CompressionContext
-    {
+    public static byte[] compress(byte[] data) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    public static final class CompressionContext {
+
         private final short[] table = new short[SnappyRawCompressor.MAX_HASH_TABLE_SIZE];
 
-        private short[] getTable()
-        {
+        private short[] getTable() {
             return table;
         }
     }
 
-    private static void verifyRange(byte[] data, int offset, int length)
-    {
+    private static void verifyRange(byte[] data, int offset, int length) {
         requireNonNull(data, "data is null");
         if (offset < 0 || length < 0 || offset + length > data.length) {
             throw new IllegalArgumentException(format("Invalid offset or length (%s, %s) in array of length %s", offset, length, data.length));
